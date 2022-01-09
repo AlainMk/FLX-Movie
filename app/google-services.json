@@ -1,0 +1,236 @@
+{
+  "project_info": {
+    "project_number": "331289906474",
+    "firebase_url": "https://kmovies-c42ab.firebaseio.com",
+    "project_id": "kmovies-c42ab",
+    "storage_bucket": "kmovies-c42ab.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:331289906474:android:484cab2a3c90a70dd56253",
+        "android_client_info": {
+          "package_name": "app.b4kmovies"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "331289906474-16pu37r4neerim1l9oohp3rgjotltmo2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "app.b4kmovies",
+            "certificate_hash": "df94d5ecca4ea3ffc5e014b8c68ca27392e1286a"
+          }
+        },
+        {
+          "client_id": "331289906474-249jfmm6j4rj5n65lmg6gto28b576nok.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "app.b4kmovies",
+            "certificate_hash": "fae507c0a21f189abef65012d4c612ecd6e69983"
+          }
+        },
+        {
+          "client_id": "331289906474-pm3svrudqufc7cml62v7sa5q75f58om2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "app.b4kmovies",
+            "certificate_hash": "68fa987466f7f4ac6d3d62db73f0abb1d1d5aaee"
+          }
+        },
+        {
+          "client_id": "331289906474-m5k0k1448lj9g8am0t8qvohsksf3b068.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCirQGxEe5vwrdPPEOEW95xo0LEMSyvr-8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "331289906474-m5k0k1448lj9g8am0t8qvohsksf3b068.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:331289906474:android:0a21e7f4c7e23eced56253",
+        "android_client_info": {
+          "package_name": "app.c4kmovies"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "331289906474-8o9f1hm940hugsqf9355qfn2sr93im90.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "app.c4kmovies",
+            "certificate_hash": "fae507c0a21f189abef65012d4c612ecd6e69983"
+          }
+        },
+        {
+          "client_id": "331289906474-m5k0k1448lj9g8am0t8qvohsksf3b068.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCirQGxEe5vwrdPPEOEW95xo0LEMSyvr-8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "331289906474-m5k0k1448lj9g8am0t8qvohsksf3b068.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:331289906474:android:7d1e9f7bef9f87c7d56253",
+        "android_client_info": {
+          "package_name": "app.d4kmovies"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "331289906474-i762hel18kti0cddgu8b3h9jt5fmn264.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "app.d4kmovies",
+            "certificate_hash": "7d7c9e181798dd8004fcec81dc24a6e6c7076c4b"
+          }
+        },
+        {
+          "client_id": "331289906474-p3pdmklsqbgnpb4pon6t8p13sgdtq6vn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "app.d4kmovies",
+            "certificate_hash": "fe429a697570e6370bdf1657361559b4e96bbaa1"
+          }
+        },
+        {
+          "client_id": "331289906474-uka0b3a2e69nvacqmt9it204kliqkkdm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "app.d4kmovies",
+            "certificate_hash": "18aeb20bdcea15a454780ff34f6d4b5aa969190d"
+          }
+        },
+        {
+          "client_id": "331289906474-m5k0k1448lj9g8am0t8qvohsksf3b068.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCirQGxEe5vwrdPPEOEW95xo0LEMSyvr-8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "331289906474-m5k0k1448lj9g8am0t8qvohsksf3b068.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:331289906474:android:dced8eed85950e07d56253",
+        "android_client_info": {
+          "package_name": "app.e4kmovies"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "331289906474-03l6a8ch6lncg90nmjfi5bakcnhv3s0k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "app.e4kmovies",
+            "certificate_hash": "7d7c9e181798dd8004fcec81dc24a6e6c7076c4b"
+          }
+        },
+        {
+          "client_id": "331289906474-g2m838vrpeldohrq8hrl00rhd6vdp6pv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "app.e4kmovies",
+            "certificate_hash": "a6b617a6e25e01602c6dde7855e2109c1ea10604"
+          }
+        },
+        {
+          "client_id": "331289906474-m5k0k1448lj9g8am0t8qvohsksf3b068.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCirQGxEe5vwrdPPEOEW95xo0LEMSyvr-8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "331289906474-m5k0k1448lj9g8am0t8qvohsksf3b068.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:331289906474:android:f38a80a0befd072ad56253",
+        "android_client_info": {
+          "package_name": "com.virlabs.demo_flx_application"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "331289906474-peta1g0kc6bh2jqauoquvgd8ocvuv8ft.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.virlabs.demo_flx_application",
+            "certificate_hash": "18aeb20bdcea15a454780ff34f6d4b5aa969190d"
+          }
+        },
+        {
+          "client_id": "331289906474-m5k0k1448lj9g8am0t8qvohsksf3b068.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCirQGxEe5vwrdPPEOEW95xo0LEMSyvr-8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "331289906474-m5k0k1448lj9g8am0t8qvohsksf3b068.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
