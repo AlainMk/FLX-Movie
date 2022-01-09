@@ -1,10 +1,12 @@
 package com.virlabs.demo_flx_application.ui.activities;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatRatingBar;
 import androidx.cardview.widget.CardView;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -38,12 +40,12 @@ import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-
-
 import com.applovin.sdk.AppLovinPrivacySettings;
 /*import com.congle7997.google_iap.BillingSubs;
 import com.congle7997.google_iap.CallBackBilling;*/
+import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.ErrorCodes;
+import com.firebase.ui.auth.IdpResponse;
 import com.gauravk.bubblenavigation.BubbleNavigationConstraintView;
 import com.gauravk.bubblenavigation.listener.BubbleNavigationChangeListener;
 import com.google.ads.consent.ConsentForm;
@@ -55,15 +57,18 @@ import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.jackandphantom.blurimage.BlurImage;
 import com.virlabs.demo_flx_application.Provider.PrefManager;
 import com.virlabs.demo_flx_application.R;
+import com.virlabs.demo_flx_application.api.UserHelper;
 import com.virlabs.demo_flx_application.api.apiClient;
 import com.virlabs.demo_flx_application.api.apiRest;
 import com.virlabs.demo_flx_application.config.Global;
 import com.virlabs.demo_flx_application.entity.ApiResponse;
 import com.virlabs.demo_flx_application.entity.Genre;
+import com.virlabs.demo_flx_application.model.User;
 import com.virlabs.demo_flx_application.ui.fragments.DownloadsFragment;
 import com.virlabs.demo_flx_application.ui.fragments.HomeFragment;
 import com.virlabs.demo_flx_application.ui.fragments.MoviesFragment;
@@ -74,7 +79,9 @@ import com.squareup.picasso.Picasso;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import androidx.appcompat.widget.Toolbar;
 
@@ -89,10 +96,11 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class HomeActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
     private final List<Fragment> mFragmentList = new ArrayList<>();
     private ViewPager viewPager;
     private ViewPagerAdapter adapter;
+    private CoordinatorLayout coordinatorLayout;
     private NavigationView navigationView;
     private TextView text_view_name_nave_header;
     private CircleImageView circle_image_view_profile_nav_header;
@@ -112,8 +120,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     public static final String SUBSCRIBE_KEY= "subscribe";
     public static final String ITEM_SKU_SUBSCRIBE= "sub_example";
 
-
-
+    //FOR DATA
+    // 1 - Identifier for Sign-In Activity
+    private static final int RC_SIGN_IN = 123;
 
     private String payment_methode_id = "null";
 
@@ -121,6 +130,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        coordinatorLayout = findViewById(R.id.coordinator_layout);
         getGenreList();
         initViews();
         initActions();
@@ -265,6 +275,97 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+
+    private void createUserWithSocialNetworkInFirestore(){
+
+        if (this.getCurrentUser() != null){
+
+            String urlPicture = (this.getCurrentUser().getPhotoUrl() != null) ? this.getCurrentUser().getPhotoUrl().toString() : null;
+            String fullName = (this.getCurrentUser().getDisplayName() != null) ? this.getCurrentUser().getDisplayName() : this.getCurrentUser().getPhoneNumber();
+            String email = this.getCurrentUser().getEmail();
+            String phoneNumber = this.getCurrentUser().getPhoneNumber();
+            String uid = this.getCurrentUser().getUid();
+
+            User user = new User(uid, fullName, email, phoneNumber, urlPicture);
+            UserHelper.createUser(user).addOnSuccessListener(unused -> {
+                startActivity(new Intent(this, HomeActivity.class));
+                finish();
+            }).addOnFailureListener(e -> {
+                Toast.makeText(this, "Une erreur inconnue s'est produite", Toast.LENGTH_SHORT).show();
+                signOutUserFromFirebase();
+            });
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // 4 - Handle SignIn Activity response on activity result
+        this.handleResponseAfterSignIn(requestCode, resultCode, data);
+    }
+
+    // --------------------
+    // UI
+    // --------------------
+
+    // 2 - Show Snack Bar with a message
+    private void showSnackBar(CoordinatorLayout coordinatorLayout, String message){
+        Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_SHORT).show();
+    }
+
+    // --------------------
+    // UTILS
+    // --------------------
+
+    // 3 - Method that handles response after SignIn Activity close
+    private void handleResponseAfterSignIn(int requestCode, int resultCode, Intent data){
+
+        IdpResponse response = IdpResponse.fromResultIntent(data);
+
+        if (requestCode == RC_SIGN_IN) {
+            if (resultCode == RESULT_OK) { // SUCCESS
+                this.createUserWithSocialNetworkInFirestore();
+            } else { // ERRORS
+                if (response == null) {
+                    showSnackBar(this.coordinatorLayout, getString(R.string.error_authentication_canceled));
+                } else if (Objects.requireNonNull(response.getError()).getErrorCode() == ErrorCodes.NO_NETWORK) {
+                    showSnackBar(this.coordinatorLayout, getString(R.string.error_no_internet));
+                } else if (response.getError().getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
+                    showSnackBar(this.coordinatorLayout, getString(R.string.error_unknown_error));
+                }
+            }
+        }
+    }
+
+    // 2 - Launch Sign-In Activity
+    private void startSignInWithPhoneActivity(){
+        startActivityForResult(
+                AuthUI.getInstance()
+                        .createSignInIntentBuilder()
+                        .setTheme(R.style.LoginTheme)
+                        .setAvailableProviders(
+                                Arrays.asList(
+                                        new AuthUI.IdpConfig.EmailBuilder().build(), //EMAIL
+                                        new AuthUI.IdpConfig.GoogleBuilder().build(), //GOOGLE
+                                        new AuthUI.IdpConfig.PhoneBuilder().build(), //GOOGLE
+                                        new AuthUI.IdpConfig.FacebookBuilder().build() // FACEBOOK
+                                ))
+                        .setIsSmartLockEnabled(false, true)
+                        .setLogo(R.mipmap.ic_launcher)
+                        .build(),
+                RC_SIGN_IN);
+    }
+
+    // --------------------
+    // REST REQUESTS
+    // --------------------
+
+    private void signOutUserFromFirebase(){
+        AuthUI.getInstance()
+                .signOut(this)
+                .addOnSuccessListener(this, aVoid -> finish());
+    }
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -274,12 +375,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         if (id == R.id.nav_home) {
             viewPager.setCurrentItem(0);
         }else if(id == R.id.login){
-            Intent intent= new Intent(HomeActivity.this, LoginActivity.class);
-            startActivity(intent);
-            overridePendingTransition(R.anim.slide_up, R.anim.slide_down);
-
-            FromLogin=true;
-
+            startSignInWithPhoneActivity();
         }else if (id == R.id.nav_exit) {
             final PrefManager prf = new PrefManager(getApplicationContext());
             if (prf.getString("NOT_RATE_APP").equals("TRUE")) {
@@ -305,27 +401,23 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             startActivity(intent);
             overridePendingTransition(R.anim.enter, R.anim.exit);
         }else if (id==R.id.my_profile){
-            PrefManager prf= new PrefManager(getApplicationContext());
-            if (prf.getString("LOGGED").toString().equals("TRUE")){
+            if (isCurrentUserLogged()) {
                 Intent intent  =  new Intent(getApplicationContext(), EditActivity.class);
-                intent.putExtra("id", Integer.parseInt(prf.getString("ID_USER")));
-                intent.putExtra("image",prf.getString("IMAGE_USER").toString());
-                intent.putExtra("name",prf.getString("NAME_USER").toString());
                 startActivity(intent);
                 overridePendingTransition(R.anim.slide_up, R.anim.slide_down);
-
-            }else{
-                Intent intent= new Intent(HomeActivity.this, LoginActivity.class);
-                startActivity(intent);
-                overridePendingTransition(R.anim.slide_up, R.anim.slide_down);
-                FromLogin=true;
+            } else{
+                startSignInWithPhoneActivity();
             }
         }else if (id==R.id.logout){
-            logout();
+            signOutUserFromFirebase();
         }else if (id ==  R.id.my_list){
-            Intent intent= new Intent(HomeActivity.this, MyListActivity.class);
-            startActivity(intent);
-            overridePendingTransition(R.anim.slide_up, R.anim.slide_down);
+            if (isCurrentUserLogged()) {
+                Intent intent  =  new Intent(getApplicationContext(), MyFavorite.class);
+                startActivity(intent);
+                overridePendingTransition(R.anim.slide_up, R.anim.slide_down);
+            } else{
+                startSignInWithPhoneActivity();
+            }
         }
         else if (id==R.id.nav_share){
             final String appPackageName=getApplication().getPackageName();
@@ -684,41 +776,27 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     protected void onResume() {
         super.onResume();
 
-
-        PrefManager prf= new PrefManager(getApplicationContext());
         Menu nav_Menu = navigationView.getMenu();
-
-
-        if(checkSUBSCRIBED()){
-            nav_Menu.findItem(R.id.buy_now).setVisible(false);
-        }else{
-            nav_Menu.findItem(R.id.buy_now).setVisible(true);
-        }
-        if (prf.getString("LOGGED").toString().equals("TRUE")){
+        if (isCurrentUserLogged()){
             nav_Menu.findItem(R.id.my_profile).setVisible(true);
-            if (prf.getString("TYPE_USER").toString().equals("email")){
-                nav_Menu.findItem(R.id.my_password).setVisible(true);
-            }
+            nav_Menu.findItem(R.id.my_password).setVisible(false);
             nav_Menu.findItem(R.id.logout).setVisible(true);
             nav_Menu.findItem(R.id.my_list).setVisible(true);
             nav_Menu.findItem(R.id.login).setVisible(false);
-            text_view_name_nave_header.setText(prf.getString("NAME_USER").toString());
-            Picasso.with(getApplicationContext()).load(prf.getString("IMAGE_USER").toString()).placeholder(R.drawable.placeholder_profile).error(R.drawable.placeholder_profile).resize(200,200).centerCrop().into(circle_image_view_profile_nav_header);
-
-            final com.squareup.picasso.Target target = new com.squareup.picasso.Target() {
-                @Override
-                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                    BlurImage.with(getApplicationContext()).load(bitmap).intensity(25).Async(true).into(image_view_profile_nav_header_bg);
+            UserHelper.getUser(getCurrentUser().getUid()).addOnSuccessListener(documentSnapshot -> {
+                if (documentSnapshot.exists()) {
+                    User user = documentSnapshot.toObject(User.class);
+                    text_view_name_nave_header.setText(user.getFullName());
+                    Picasso.with(getApplicationContext()).load(getCurrentUser().getPhotoUrl())
+                            .placeholder(R.drawable.placeholder_profile)
+                            .error(R.drawable.placeholder_profile)
+                            .resize(200,200)
+                            .centerCrop().into(circle_image_view_profile_nav_header);
+                } else {
+                    signOutUserFromFirebase();
                 }
-                @Override
-                public void onBitmapFailed(Drawable errorDrawable) { }
-                @Override
-                public void onPrepareLoad(Drawable placeHolderDrawable) { }
-            };
-            Picasso.with(getApplicationContext()).load(prf.getString("IMAGE_USER").toString()).into(target);
-            image_view_profile_nav_header_bg.setTag(target);
+            });
             image_view_profile_nav_header_bg.setVisibility(View.VISIBLE);
-
         }else{
             nav_Menu.findItem(R.id.my_profile).setVisible(false);
             nav_Menu.findItem(R.id.my_password).setVisible(false);
@@ -729,9 +807,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
             text_view_name_nave_header.setText(getResources().getString(R.string.please_login));
             Picasso.with(getApplicationContext()).load(R.drawable.placeholder_profile).placeholder(R.drawable.placeholder_profile).error(R.drawable.placeholder_profile).resize(200,200).centerCrop().into(circle_image_view_profile_nav_header);
-        }
-        if (FromLogin){
-            FromLogin = false;
         }
 
     }

@@ -32,14 +32,16 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.virlabs.demo_flx_application.Provider.PrefManager;
 import com.virlabs.demo_flx_application.R;
 import com.virlabs.demo_flx_application.api.ProgressRequestBody;
+import com.virlabs.demo_flx_application.api.UserHelper;
 import com.virlabs.demo_flx_application.api.apiClient;
 import com.virlabs.demo_flx_application.api.apiRest;
 import com.virlabs.demo_flx_application.entity.ApiResponse;
 import com.squareup.picasso.Picasso;
+import com.virlabs.demo_flx_application.model.User;
 
 import java.io.File;
 
-public class EditActivity extends AppCompatActivity implements  ProgressRequestBody.UploadCallbacks{
+public class EditActivity extends BaseActivity implements  ProgressRequestBody.UploadCallbacks{
 
     private PrefManager prf;
     private CircleImageView image_view_edit_activity_user_profile;
@@ -48,9 +50,7 @@ public class EditActivity extends AppCompatActivity implements  ProgressRequestB
     private RelativeLayout relative_layout_edit_activity_save;
     private TextInputLayout text_input_layout_activity_edit_name;
     private TextInputEditText text_input_editor_text_activity_edit_name;
-    private int id;
-    private String name;
-    private String image;
+
     private int PICK_IMAGE = 1557;
     private String imageUrl;
     private ProgressDialog pd;
@@ -60,9 +60,6 @@ public class EditActivity extends AppCompatActivity implements  ProgressRequestB
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit);
         Bundle bundle = getIntent().getExtras() ;
-        this.id =  bundle.getInt("id");
-        this.name =  bundle.getString("name");
-        this.image =  bundle.getString("image");
         this.prf = new PrefManager(getApplicationContext());
         initView();
         initAction();
@@ -101,24 +98,29 @@ public class EditActivity extends AppCompatActivity implements  ProgressRequestB
             submit();
         });
         this.image_view_edit_activity_name_edit_photo.setOnClickListener(v->{
-            SelectImage();
+            //SelectImage();
         });
     }
 
     private void submit() {
         if (!validatName())
             return;
-        edit();
+        updateUsername();
     }
 
     private void setUser() {
-        this.text_input_editor_text_activity_edit_name.setText(name);
-        this.text_view_edit_activity_name_user.setText(name);
-        Picasso.with(this)
-                .load(image)
-                .error(R.drawable.placeholder_profile)
-                .placeholder(R.drawable.placeholder_profile)
-                .into(image_view_edit_activity_user_profile);
+        if (isCurrentUserLogged()) {
+            UserHelper.getUser(getCurrentUser().getUid()).addOnSuccessListener(documentSnapshot -> {
+                User user = documentSnapshot.toObject(User.class);
+                this.text_input_editor_text_activity_edit_name.setText(user.getFullName());
+                this.text_view_edit_activity_name_user.setText(user.getFullName());
+
+                Picasso.with(this)
+                        .load(user.getProfileUrl())
+                        .placeholder(R.drawable.poster_placeholder)
+                        .into(image_view_edit_activity_user_profile);
+            });
+        }
     }
     private void SelectImage() {
         if (ContextCompat.checkSelfPermission(EditActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -132,9 +134,10 @@ public class EditActivity extends AppCompatActivity implements  ProgressRequestB
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case 0: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED ) {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     SelectImage();
                 }
                 return;
@@ -182,6 +185,16 @@ public class EditActivity extends AppCompatActivity implements  ProgressRequestB
             }
         }
     }
+
+    private void updateUsername() {
+        pd.show();
+        UserHelper.updateUsername(text_input_editor_text_activity_edit_name.getText().toString().trim(), getCurrentUser().getUid()).addOnSuccessListener(aVoid -> {
+            Toasty.success(getApplication(),getResources().getString(R.string.infos_updated_successfully),Toast.LENGTH_LONG).show();
+            pd.cancel();
+            setUser();
+        });
+    }
+
     public void edit() {
         pd.show();
 

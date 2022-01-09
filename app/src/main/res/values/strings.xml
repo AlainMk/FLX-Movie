@@ -2,12 +2,21 @@
     <string name="app_name">Demo App</string>
     <string name="publisher_id">pub-3940256099942544</string>
 
-    <string name="facebook_app_id">2703176636427041</string>
-    <string name="fb_login_protocol_scheme">fb2703176636427041</string>
+    <string name="facebook_app_id" translatable="false">789553825213453</string>
+    <string name="fb_login_protocol_scheme" translatable="false">fb789553825213453</string>
+    <string name="facebook_application_id" translatable="false">789553825213453</string>
+    <string name="facebook_login_protocol_scheme" translatable="false">fb789553825213453</string>
 
     <string name="unity_ads_app_id">xxxx-xxxx-xxxx-xxxx-xxx</string>
     <string name="app_lovin_id">nIcO_boo7GMMZ2XaF5P1EldmOyTNmk8X8mMWH8KV6rAsOrH3fJuwLCT1Edyh8qK_phPCWizxoIrFwguMHgn0SJ</string>
 
+    <string name="error_not_connected">Vous devez vous connecter !</string>
+    <string name="error_authentication_canceled">Authentification annulée</string>
+    <string name="error_no_internet">Aucune connexion internet !</string>
+    <string name="error_unknown_error">Une erreur inconnue s\'est produite</string>
+    <string name="connection_succeed">Authentification réussie !</string>
+    <string name="button_login_text_logged">Afficher le profil</string>
+    <string name="button_login_text_not_logged">Connexion</string>
 
     <string name="download_foler">Flix</string>
     <string name="panel_url">flix.virmana.com</string>
@@ -139,4 +148,5 @@
     <string name="my_list">My List</string>
     <string name="click_to_upload_file_here">Click to upload file here</string>
     <string name="subscription_policy">Terms and Conditions</string>
+    <string name="my_favorite">Mes Favoris</string>
 </resources>

@@ -56,9 +56,9 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <meta-data
+        <!--<meta-data
             android:name="com.facebook.sdk.ApplicationId"
-            android:value="@string/facebook_app_id" />
+            android:value="@string/facebook_app_id" />-->
 
         <service
             android:name="com.virlabs.demo_flx_application.services.DownloadService"
@@ -163,6 +163,9 @@
             android:theme="@style/AppThemeNoAction" />
         <activity
             android:name="com.virlabs.demo_flx_application.ui.activities.MyListActivity"
+            android:theme="@style/AppThemeNoAction" />
+        <activity
+            android:name="com.virlabs.demo_flx_application.ui.activities.MyFavorite"
             android:theme="@style/AppThemeNoAction" />
         <activity
             android:name="com.virlabs.demo_flx_application.ui.activities.SerieActivity"
