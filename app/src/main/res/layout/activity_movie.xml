@@ -328,7 +328,7 @@
                                     android:layout_height="50dp"
                                     android:padding="7dp"
                                     android:tint="@color/white"
-                                    app:srcCompat="@drawable/ic_check" />
+                                    app:srcCompat="@drawable/ic_unfav" />
                                 <ProgressBar
                                     android:padding="7dp"
                                     android:visibility="gone"

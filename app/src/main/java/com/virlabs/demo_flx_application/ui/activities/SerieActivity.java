@@ -90,6 +90,7 @@ import com.jackandphantom.blurimage.BlurImage;
 import com.orhanobut.hawk.Hawk;
 import com.virlabs.demo_flx_application.Provider.PrefManager;
 import com.virlabs.demo_flx_application.R;
+import com.virlabs.demo_flx_application.api.FavoriteHelper;
 import com.virlabs.demo_flx_application.api.apiClient;
 import com.virlabs.demo_flx_application.api.apiRest;
 import com.virlabs.demo_flx_application.config.Global;
@@ -106,6 +107,7 @@ import com.virlabs.demo_flx_application.entity.Source;
 import com.virlabs.demo_flx_application.entity.Subtitle;
 import com.virlabs.demo_flx_application.event.CastSessionEndedEvent;
 import com.virlabs.demo_flx_application.event.CastSessionStartedEvent;
+import com.virlabs.demo_flx_application.model.Favorite;
 import com.virlabs.demo_flx_application.services.DownloadService;
 import com.virlabs.demo_flx_application.services.ToastService;
 import com.virlabs.demo_flx_application.ui.Adapters.ActorAdapter;
@@ -124,7 +126,7 @@ import java.util.List;
 import java.util.Random;
 
 
-public class SerieActivity extends AppCompatActivity implements PlaylistDownloader.DownloadListener {
+public class SerieActivity extends BaseActivity implements PlaylistDownloader.DownloadListener {
     private  static String TAG= "SerieActivity";
     private CastContext mCastContext;
     private SessionManager mSessionManager;
@@ -1726,84 +1728,36 @@ public class SerieActivity extends AppCompatActivity implements PlaylistDownload
     }
     private void checkFavorite() {
 
-        final PrefManager prefManager = new PrefManager(this);
-        if (prefManager.getString("LOGGED").toString().equals("TRUE")){
-            Integer id_user=  Integer.parseInt(prefManager.getString("ID_USER"));
-            String   key_user=  prefManager.getString("TOKEN_USER");
-            Retrofit retrofit = apiClient.getClient();
-            apiRest service = retrofit.create(apiRest.class);
-            progress_bar_activity_serie_my_list.setVisibility(View.VISIBLE);
-            linear_layout_activity_serie_my_list.setClickable(false);
-
-            image_view_activity_serie_my_list.setVisibility(View.GONE);
-            Call<Integer> call = service.CheckMyList(poster.getId(),id_user,key_user,"poster");
-            call.enqueue(new Callback<Integer>() {
-                @Override
-                public void onResponse(Call<Integer> call, retrofit2.Response<Integer> response) {
-                    if (response.isSuccessful()){
-                        if (response.body() == 200){
-                            image_view_activity_serie_my_list.setImageDrawable(getResources().getDrawable(R.drawable.ic_close));
-                        }else{
-                            image_view_activity_serie_my_list.setImageDrawable(getResources().getDrawable(R.drawable.ic_check));
-
-                        }
-                    }
-                    progress_bar_activity_serie_my_list.setVisibility(View.GONE);
-                    image_view_activity_serie_my_list.setVisibility(View.VISIBLE);
-                    linear_layout_activity_serie_my_list.setClickable(true);
-
-                }
-                @Override
-                public void onFailure(Call<Integer> call, Throwable t) {
-                    progress_bar_activity_serie_my_list.setVisibility(View.GONE);
-                    image_view_activity_serie_my_list.setVisibility(View.VISIBLE);
-                    linear_layout_activity_serie_my_list.setClickable(true);
-
-
+        if (isCurrentUserLogged()) {
+            FavoriteHelper.getCollectionReference().whereEqualTo("user", getCurrentUser().getUid())
+                    .whereEqualTo("movie.id", poster.getId()).addSnapshotListener((query, e) -> {
+                if (!query.isEmpty()) {
+                    image_view_activity_serie_my_list.setImageDrawable(getResources().getDrawable(R.drawable.ic_fav));
+                } else {
+                    image_view_activity_serie_my_list.setImageDrawable(getResources().getDrawable(R.drawable.ic_unfav));
                 }
             });
+        } else {
+            image_view_activity_serie_my_list.setImageDrawable(getResources().getDrawable(R.drawable.ic_unfav));
         }
     }
     public void addMyList(){
-        final PrefManager prefManager = new PrefManager(this);
-        if (prefManager.getString("LOGGED").toString().equals("TRUE")){
-            Integer id_user=  Integer.parseInt(prefManager.getString("ID_USER"));
-            String   key_user=  prefManager.getString("TOKEN_USER");
-            Retrofit retrofit = apiClient.getClient();
-            apiRest service = retrofit.create(apiRest.class);
-            progress_bar_activity_serie_my_list.setVisibility(View.VISIBLE);
-            image_view_activity_serie_my_list.setVisibility(View.GONE);
-            linear_layout_activity_serie_my_list.setClickable(false);
-            Call<Integer> call = service.AddMyList(poster.getId(),id_user,key_user,"poster");
-            call.enqueue(new Callback<Integer>() {
-                @Override
-                public void onResponse(Call<Integer> call, retrofit2.Response<Integer> response) {
-                    if (response.isSuccessful()){
-                        if (response.body() == 200){
-                            image_view_activity_serie_my_list.setImageDrawable(getResources().getDrawable(R.drawable.ic_close));
-                            Toasty.info(SerieActivity.this, "This tv serie has been added to your list", Toast.LENGTH_SHORT).show();
-                        }else{
-                            image_view_activity_serie_my_list.setImageDrawable(getResources().getDrawable(R.drawable.ic_check));
-                            Toasty.warning(SerieActivity.this, "This tv serie has been removed from your list", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                    progress_bar_activity_serie_my_list.setVisibility(View.GONE);
-                    image_view_activity_serie_my_list.setVisibility(View.VISIBLE);
-                    linear_layout_activity_serie_my_list.setClickable(true);
-
-                }
-                @Override
-                public void onFailure(Call<Integer> call, Throwable t) {
-                    progress_bar_activity_serie_my_list.setVisibility(View.GONE);
-                    image_view_activity_serie_my_list.setVisibility(View.VISIBLE);
-                    linear_layout_activity_serie_my_list.setClickable(true);
-
+        if (isCurrentUserLogged()) {
+            FavoriteHelper.getCollectionReference().whereEqualTo("user", getCurrentUser().getUid())
+                    .whereEqualTo("movie.id", poster.getId()).get().addOnSuccessListener(queryDocumentSnapshots -> {
+                if (!queryDocumentSnapshots.isEmpty()) {
+                    List<Favorite> favorites = queryDocumentSnapshots.toObjects(Favorite.class);
+                    FavoriteHelper.removeFavorite(favorites.get(0).getId());
+                    Toasty.warning(this, getString(R.string.menu_films) + " " + poster.getTitle() + " " + getString(R.string.retire_list), Toast.LENGTH_SHORT).show();
+                } else {
+                    String id = FavoriteHelper.getCollectionReference().document().getId();
+                    Favorite favorite = new Favorite(id, getCurrentUser().getUid(), poster);
+                    FavoriteHelper.createFavorite(favorite);
+                    Toasty.success(this, getString(R.string.menu_films) + " " + poster.getTitle() + " " + getString(R.string.ajout_list), Toast.LENGTH_SHORT).show();
                 }
             });
-        }else{
-            Intent intent = new Intent(SerieActivity.this,LoginActivity.class);
-            startActivity(intent);
-            overridePendingTransition(R.anim.slide_up, R.anim.slide_down);
+        } else {
+            Toasty.error(this, getString(R.string.error_not_connected), Toasty.LENGTH_SHORT).show();
         }
     }
     public void share(){
